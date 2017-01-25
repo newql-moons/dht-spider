@@ -1,3 +1,6 @@
+import random
+import time
+
 from bitstring import BitArray
 from config import k
 from node import AbNode
@@ -40,6 +43,25 @@ class RouteTable(object):
             return self.__nodes[addr]
         except KeyError:
             return AbNode(addr)
+
+    def fresh(self, ping, find_node):
+        for node in self.nodes():
+            if node.dubious:
+                self.rm_node(node)
+            if not node.is_good():
+                node.dubious = True
+                ping(node)
+        for bucket in self.buckets():
+            if bucket.need_change():
+                find_node(bucket.random_node(), self.node_id.bytes)
+
+    def update(self, node):
+        self.root.update(node)
+
+    def rm_node(self, node):
+        if self.__nodes.get(node.addr):
+            del self.__nodes[node.addr]
+        self.root.rm_node(node)
 
 
 class TreeNode(object):
@@ -95,6 +117,18 @@ class TreeNode(object):
             for bucket in self.right.buckets():
                 yield bucket
 
+    def update(self, node):
+        if not node.id[self.depth]:
+            self.left.update(node)
+        else:
+            self.right.update(node)
+
+    def rm_node(self, node):
+        if not node.id[self.depth]:
+            self.left.rm_node(node)
+        else:
+            self.right.rm_node(node)
+
 
 class Bucket(object):
     def __init__(self, node_id, depth=0):
@@ -102,8 +136,10 @@ class Bucket(object):
         self.__nodes = []
         self.depth = depth
         self.me_in = True
+        self.last_change = time.time()
 
     def insert(self, node):
+        self.last_change = time.time()
         if len(self.__nodes) < k:
             self.__nodes.append(node)
             return self
@@ -126,6 +162,21 @@ class Bucket(object):
     def nodes(self):
         for node in self.__nodes:
             yield node
+
+    def rm_node(self, node):
+        if node in self.__nodes:
+            self.__nodes.remove(node)
+
+    def random_node(self):
+        return self.__nodes[random.randint(0, len(self.__nodes))]
+
+    def need_change(self):
+        return self.last_change - time.time() > 5 * 60
+
+    def update(self, node):
+        if node in self.__nodes:
+            node.comm()
+            self.last_change = time.time()
 
 
 class Trash(Exception):

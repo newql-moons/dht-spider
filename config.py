@@ -8,4 +8,4 @@ start_url = [
     ('dht.transmissionbt.com', 6881),
 ]
 
-max_size = 800
+max_size = 600

@@ -1,9 +1,8 @@
 import threading
 import queue
-import socket
 import logging
 
-from util import randomid, bencode
+from util import randomid, bencode, threadpool
 from routetab import RouteTable
 from config import addr, max_size, start_url
 from node import *
@@ -13,7 +12,7 @@ class Spider(object):
     def __init__(self):
         self.node_id = randomid()
         self.route_table = RouteTable(self.node_id)
-        self.hash_buf = HashBuff()
+        self.hash_buf = HashBuff(20)
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(addr)
@@ -28,14 +27,17 @@ class Spider(object):
 
     def run(self):
         self.join_dht()
+        clock = time.time()
         while True:
             try:
                 args = self.recv_worker.recv()
                 if args:
                     self.msg_handler(*args)
             except Exception as e:
-                # raise e
-                pass
+                raise e
+                # pass
+            if time.time() - clock > 5 * 60:
+                self.route_table.fresh(self.ping, self.find_node)
 
     def join_dht(self):
         for url in start_url:
@@ -43,6 +45,8 @@ class Spider(object):
             self.find_node(node, self.node_id)
 
     def msg_handler(self, msg, node):
+        if isinstance(node, Node):
+            self.route_table.update(node)
         if msg.get(b'e'):
             return
         t = msg[b't']
@@ -82,6 +86,7 @@ class Spider(object):
             r = {
                 b'id': self.node_id,
                 b'nodes': pack_nodes(nodes),
+                b'token': randomid(8),
             }
             logging.debug('Send resp(get_peers) to %s' % node)
             self.resp(node, transaction_id, r)
@@ -103,8 +108,8 @@ class Spider(object):
         }
         try:
             handlers[q]()
-        except KeyError:
-            pass
+        except KeyError as e:
+            raise e
 
     def resp_handler(self, node, r):
         if isinstance(node, AbNode):
@@ -161,7 +166,7 @@ class Spider(object):
         q = b'get_peers'
         a = {
             b'id': self.node_id,
-            b'target': info_hash
+            b'info_hash': info_hash
         }
         self.req(node, q, a)
 
@@ -170,12 +175,14 @@ class SendWorker(threading.Thread):
     def __init__(self, spider):
         super().__init__()
         self.spider = spider
-        self.buf = queue.Queue(5000)
+        self.buf = queue.Queue()
+        self.pool = threadpool.ThreadPool(10)
 
     def run(self):
         while True:
             data, addr = self.buf.get()
-            self.spider.sock.sendto(data, addr)
+            # self.spider.sock.sendto(data, addr)
+            self.pool.add_task(self.spider.sock.sendto, data, addr)
             self.buf.task_done()
 
     def send(self, msg, node):
@@ -211,15 +218,18 @@ class RecvWorker(threading.Thread):
 
 class HashBuff(object):
     def __init__(self, size=5):
+        self.sum = 0
         self.buf = []
         self.__size = size
 
     def put(self, info_hash):
-        if len(self.buf) < self.__size:
-            self.buf.append(info_hash)
-        else:
-            self.buf.pop()
-            self.buf.append(info_hash)
+        if info_hash not in self.buf:
+            self.sum += 1
+            if len(self.buf) < self.__size:
+                self.buf.append(info_hash)
+            else:
+                self.buf.pop()
+                self.buf.append(info_hash)
 
     def __iter__(self):
         for info_hash in self.buf:

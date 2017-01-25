@@ -1,5 +1,6 @@
 import socket
 import struct
+import time
 
 from bitstring import BitArray
 
@@ -8,6 +9,8 @@ class Node(object):
     def __init__(self, node_id, addr):
         self.id = BitArray(node_id)
         self.addr = addr
+        self.dubious = False
+        self.last_comm = time.time()
 
     @property
     def compact_info(self):
@@ -20,6 +23,12 @@ class Node(object):
     def __repr__(self):
         ip, port = self.addr
         return 'Node[%s %s:%d]' % (self.id.hex, ip, port)
+
+    def comm(self):
+        self.last_comm = time.time()
+
+    def is_good(self):
+        return time.time() - self.last_comm < 5 * 60
 
 
 class AbNode(object):
