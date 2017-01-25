@@ -1,6 +1,7 @@
 import threading
 import queue
 import logging
+import sys
 
 from util import randomid, bencode, threadpool
 from routetab import RouteTable
@@ -33,9 +34,8 @@ class Spider(object):
                 args = self.recv_worker.recv()
                 if args:
                     self.msg_handler(*args)
-            except Exception as e:
-                # raise e
-                pass
+            except Exception:
+                logging.error(sys.exc_info()[:2])
             if time.time() - clock > 5 * 60:
                 self.route_table.fresh(self.ping, self.find_node)
 
