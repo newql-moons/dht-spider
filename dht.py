@@ -34,8 +34,8 @@ class Spider(object):
                 if args:
                     self.msg_handler(*args)
             except Exception as e:
-                raise e
-                # pass
+                # raise e
+                pass
             if time.time() - clock > 5 * 60:
                 self.route_table.fresh(self.ping, self.find_node)
 
