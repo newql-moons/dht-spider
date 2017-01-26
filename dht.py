@@ -125,15 +125,15 @@ class Spider(object):
                 self.route_table.insert(nd)
                 self.ask(nd)
             logging.info('Get %d nodes from %s, you already have %d nodes'
-                          % (len(nodes), node, len(self.route_table)))
+                         % (len(nodes), node, len(self.route_table)))
         except KeyError:
             pass
 
     def ask(self, node):
         if self.route_table.__len__() < max_size:
             self.find_node(node, self.node_id)
-        for info_hash in self.hash_buf:
-            self.get_peers(node, info_hash)
+        # for info_hash in self.hash_buf:
+        #     self.get_peers(node, info_hash)
 
     def req(self, node, q, a):
         msg = {
