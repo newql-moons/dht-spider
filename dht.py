@@ -124,7 +124,7 @@ class Spider(object):
             for nd in nodes:
                 self.route_table.insert(nd)
                 self.ask(nd)
-            logging.debug('Get %d nodes from %s, you already have %d nodes'
+            logging.info('Get %d nodes from %s, you already have %d nodes'
                           % (len(nodes), node, len(self.route_table)))
         except KeyError:
             pass
