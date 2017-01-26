@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3b0a0209-2a13-4b85-a96d-6dc614d0928d" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.py" afterPath="$PROJECT_DIR$/config.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dht.py" afterPath="$PROJECT_DIR$/dht.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routetab.py" afterPath="$PROJECT_DIR$/routetab.py" />
     </list>
     <ignored path="dht-spider.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -510,7 +507,14 @@
       <option name="project" value="LOCAL" />
       <updated>1485396328902</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="alpha">
+      <created>1485437070072</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1485437070072</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -570,7 +574,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="debug" />
-    <option name="LAST_COMMIT_MESSAGE" value="debug" />
+    <MESSAGE value="alpha" />
+    <option name="LAST_COMMIT_MESSAGE" value="alpha" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
