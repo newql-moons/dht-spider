@@ -86,7 +86,7 @@ class TreeNode(object):
         return self
 
     def get_neighbor(self, info_hash, n=k):
-        if not info_hash:
+        if not info_hash[self.depth]:
             a = self.left
             b = self.right
         else:

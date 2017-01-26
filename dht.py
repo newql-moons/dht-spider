@@ -185,7 +185,6 @@ class SendWorker(threading.Thread):
     def run(self):
         while True:
             data, addr = self.buf.get()
-            # self.spider.sock.sendto(data, addr)
             self.pool.add_task(self.spider.sock.sendto, data, addr)
             self.buf.task_done()
 
@@ -206,12 +205,11 @@ class RecvWorker(threading.Thread):
         while True:
             self.buf.join()
             data, addr = self.spider.sock.recvfrom(65535)
-            # print(data)
             self.buf.put((data, addr))
 
     def recv(self):
         try:
-            data, addr = self.buf.get_nowait()
+            data, addr = self.buf.get()
             msg = bencode.loads(data)
             node = self.spider.route_table.get_node(addr)
             self.buf.task_done()

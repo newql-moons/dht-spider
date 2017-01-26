@@ -1,6 +1,6 @@
 k = 8
 
-addr = ('0.0.0.0', 6887)
+addr = ('0.0.0.0', 6886)
 
 start_url = [
     ('router.bittorrent.com', 6881),
@@ -8,4 +8,4 @@ start_url = [
     ('dht.transmissionbt.com', 6881),
 ]
 
-max_size = 600
+max_size = 2000
