@@ -49,7 +49,11 @@ class Spider(object):
             self.route_table.update(node)
         if msg.get(b'e'):
             return
-        t = msg[b't']
+        try:
+            t = msg[b't']
+        except KeyError as e:
+            logging.error(msg)
+            raise e
         y = msg[b'y']
         if y == b'q':
             self.req_handle(node, t, msg[b'q'], msg[b'a'])
